@@ -8,7 +8,7 @@ export const router = express.Router()
 
 router.use('/bookings', bookingRouter)
 router.use('/products', productRouter)
-router.use('/customes', customerRouter)
+router.use('/customers', customerRouter)
 
 
 // Catch 404 (ALWAYS keep this as the last route).

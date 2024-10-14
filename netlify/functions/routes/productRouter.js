@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import { BookingManager } from 'booking-manager-module'
 
 export const router = Router()
 
 // get all products
 router.get('/', (req, res) => {
-    const bookings = BookingManager.getAllBookings()
+    const bookings = req.bookingManager.getAllBookings()
     res.render('products/index')
+    console.log('rendered')
     res.status(200).json({bookings})
 })
 

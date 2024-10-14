@@ -9,6 +9,7 @@ import serverless from 'serverless-http'
 import { MongoClient } from 'mongodb'
 import express from 'express'
 import dotenv from 'dotenv'
+import { BookingManager } from 'booking-manager-module'
 
 dotenv.config()
 
@@ -38,14 +39,17 @@ const connectToDB = async () => {
       throw err
     }
   }
+
   
   // Middleware to acess DB in routers
 server.use(async (req, res, next) => {
     try {
       if (!db) {
         await connectToDB()
+        const bookingManager = new BookingManager(db)
       }
-      req.db = db
+      req.db = db;
+      req.bookingManager = bookingManager
       next()
     } catch (err) {
       res.status(500).json({ error: 'Database connection error' })
