@@ -6,7 +6,7 @@ export const router = Router()
 // get all products
 router.get('/', (req, res) => {
     const bookings = BookingManager.getAllBookings()
-    res.render('layouts/default')
+    res.render('products/index')
     res.status(200).json({bookings})
 })
 
