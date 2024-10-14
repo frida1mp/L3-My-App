@@ -1,0 +1,11 @@
+// Source: https://docs.netlify.com/frameworks/express/ 
+
+[functions]
+  directory = "netlify/functions"
+  external_node_modules = ["express"]
+  node_bundler = "esbuild"
+[[redirects]]
+  from = "/server/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
