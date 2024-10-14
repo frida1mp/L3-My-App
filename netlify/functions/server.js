@@ -1,9 +1,20 @@
-import { router as routes } from './routes/router'
+/**
+ * @file Defines the main application..
+ * @module app
+ * @author Frida Pedersén
+ * @version 1.1.0
+ */
+import { router } from './routes/router.js'
 import serverless from 'serverless-http'
 import { MongoClient } from 'mongodb'
+import express from 'express'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const server = express()
 const uri = process.env.MONGO_URI
+console.log('URI:',uri)
 
 let client
 let db
@@ -12,7 +23,8 @@ let db
 const connectToDB = async () => {
     try {
       if (!client) {
-        client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+        console.log('uri?', process.env.MONGO_URI)
+        client = new MongoClient(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
         await client.connect()
 
@@ -28,7 +40,7 @@ const connectToDB = async () => {
   }
   
   // Middleware to acess DB in routers
-app.use(async (req, res, next) => {
+server.use(async (req, res, next) => {
     try {
       if (!db) {
         await connectToDB()
@@ -40,6 +52,13 @@ app.use(async (req, res, next) => {
     }
   });
 
-app.use('//.netlify/functions/app', routes)
+server.use('/.netlify/functions/app', router)
+
+// Start the server locally
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
+
 
 export const serverHandler = serverless(server)
