@@ -6,8 +6,11 @@
  */
 import { router } from './routes/router.js'
 import serverless from 'serverless-http'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { MongoClient } from 'mongodb'
 import express from 'express'
+import expressLayouts from 'express-ejs-layouts'
 import dotenv from 'dotenv'
 import { BookingManager } from 'booking-manager-module'
 
@@ -15,7 +18,17 @@ dotenv.config()
 
 const server = express()
 const uri = process.env.MONGO_URI
-console.log('URI:',uri)
+let bookingManager
+// Get the directory name of this module's path.
+const directoryFullName = dirname(fileURLToPath(import.meta.url))
+
+// View engine setup.
+server.set('view engine', 'ejs')
+server.set('views', join(directoryFullName, 'views'))
+server.set('layout', join(directoryFullName, 'views', 'layouts', 'default'))
+server.set('layout extractScripts', true)
+server.set('layout extractStyles', true)
+server.use(expressLayouts)
 
 let client
 let db
@@ -23,38 +36,38 @@ let db
 // Connect to the MongoDB client
 const connectToDB = async () => {
     try {
-      if (!client) {
-        console.log('uri?', process.env.MONGO_URI)
-        client = new MongoClient(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+        if (!client) {
+            console.log('uri?', process.env.MONGO_URI)
+            client = new MongoClient(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
-        await client.connect()
+            await client.connect()
 
-        db = client.db('mongodb')
+            db = client.db('mongodb')
 
-        console.log('Connection to MongoDB successfull')
-      }
-      return db
+            console.log('Connection to MongoDB successfull')
+        }
+        return db
     } catch (err) {
-      console.error('MongoDB connecting error:', err)
-      throw err
+        console.error('MongoDB connecting error:', err)
+        throw err
     }
-  }
+}
 
-  
-  // Middleware to acess DB in routers
+
+// Middleware to acess DB in routers
 server.use(async (req, res, next) => {
     try {
-      if (!db) {
-        await connectToDB()
-        const bookingManager = new BookingManager(db)
-      }
-      req.db = db;
-      req.bookingManager = bookingManager
-      next()
+        if (!db) {
+            await connectToDB()
+            bookingManager = new BookingManager(db)
+        }
+        req.db = db;
+        req.bookingManager = bookingManager
+        next()
     } catch (err) {
-      res.status(500).json({ error: 'Database connection error' })
+        res.status(500).json({ error: 'Database connection error' })
     }
-  });
+});
 
 server.use('/.netlify/functions/app', router)
 
