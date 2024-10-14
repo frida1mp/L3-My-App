@@ -1,10 +1,10 @@
-import { Router } from 'express'
+import express from 'express'
 import serverless from 'serverless-http'
 import { router as bookingRouter } from './bookingRouter.js'
 import { router as productRouter } from './productRouter.js'
 import { router as customerRouter } from './customerRouter.js'
 
-export const router = Router()
+export const router = express.Router()
 
 router.use('/bookings', bookingRouter)
 router.use('/products', productRouter)
