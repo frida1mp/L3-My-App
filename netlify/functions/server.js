@@ -9,6 +9,7 @@ import serverless from 'serverless-http'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { MongoClient } from 'mongodb'
+import { MongoStorage } from './storage/mongoDbStorage.js'
 import express from 'express'
 import expressLayouts from 'express-ejs-layouts'
 import dotenv from 'dotenv'
@@ -37,14 +38,9 @@ let db
 const connectToDB = async () => {
     try {
         if (!client) {
-            console.log('uri?', process.env.MONGO_URI)
-            client = new MongoClient(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-
-            await client.connect()
-
-            db = client.db('mongodb')
-
+            db = new MongoStorage(process.env.MONGO_URI, 'mongoDb')
             console.log('Connection to MongoDB successfull')
+            
         }
         return db
     } catch (err) {
@@ -61,6 +57,7 @@ server.use(async (req, res, next) => {
             await connectToDB()
             bookingManager = new BookingManager(db)
         }
+        
         req.db = db;
         req.bookingManager = bookingManager
         next()

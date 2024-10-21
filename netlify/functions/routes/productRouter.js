@@ -4,20 +4,24 @@ export const router = Router()
 
 // get all products
 router.get('/', (req, res) => {
-    console.log('render?')
-   const bookings = req.bookingManager.getAllBookings()
+   const products = req.bookingManager.getAllProducts()
     console.log('rendered')
-    res.status(200).json({bookings})
+    res.status(200).json({products})
 })
 
 // create new product
-router.post('/create', (req, res) => {
+router.post('/create', async (req, res) => {
+    console.log('inside create prod')
     const product = {
         name: 'game1',
         description: 'test1',
-        price: 100
+        price: 10
     }
-    const bookings = req.bookingManager.addProduct(product)
+    console.log(product, 'test')
+    const newProduct = await req.bookingManager.addProduct(product)
+    console.log('neww', newProduct)
+    res.status(200).json({newProduct})
+
 })
 
 // gets product by id
